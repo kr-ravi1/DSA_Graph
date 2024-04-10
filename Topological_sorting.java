@@ -4,28 +4,28 @@ class Solution
     static int[] topoSort(int V, ArrayList<ArrayList<Integer>> adj) 
     {
         // add your code here
-        boolean[] vis = new boolean[V];
-        Stack<Integer> s = new Stack<>();
+        Queue<Integer> q = new LinkedList<>();
+        int[] inDegree = new int[V];
         for(int i=0;i<V;i++){
-            if(!vis[i]){
-                dfs(adj,vis,i,s);
+            for(int it : adj.get(i)){
+                inDegree[it]++;
             }
         }
-        int[] ans = new int[V];
+        
         for(int i=0;i<V;i++){
-            ans[i] = s.pop();
+            if(inDegree[i] == 0) q.add(i);
+        }
+        
+        int[] ans = new int[V];
+        int i=0;
+        while(!q.isEmpty()){
+            int temp = q.poll();
+            ans[i++] = temp;
+            for(int t : adj.get(temp)){
+                inDegree[t]--;
+                if(inDegree[t] == 0) q.add(t);
+            }
         }
         return ans;
-    }
-    
-    static void dfs(ArrayList<ArrayList<Integer>> adj, boolean[] vis, int node, Stack<Integer> s){
-        vis[node] = true;
-        for(int t : adj.get(node)){
-            if(!vis[t]){
-                dfs(adj,vis,t,s);
-            }
-        }
-        s.push(node);
-        return;
     }
 }
