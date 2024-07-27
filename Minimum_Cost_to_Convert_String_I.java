@@ -1,59 +1,34 @@
 class Solution {
     public long minimumCost(String source, String target, char[] original, char[] changed, int[] cost) {
-        // graph
-        ArrayList<ArrayList<Pair>> graph = new ArrayList<>();
+        int[][] mat = new int[26][26];
         for(int i=0;i<26;i++) {
-            graph.add(new ArrayList<>());
+            Arrays.fill(mat[i], Integer.MAX_VALUE);
+            mat[i][i] = 0;
         }
 
-        for(int i=0;i<original.length;i++) {
-            int o = original[i]-'a';
-            int c = changed[i]-'a';
-            graph.get(o).add(new Pair(c, cost[i]));
+        for(int i=0;i<cost.length;i++) {
+            mat[original[i]-'a'][changed[i]-'a'] = Math.min(cost[i],  mat[original[i]-'a'][changed[i]-'a']);
         }
 
-        int ans = 0;
-        for(int i=0;i<source.length();i++) {
-            if(source.charAt(i) != target.charAt(i)) {
-                int temp = minCost(graph, source.charAt(i)-'a', target.charAt(i)-'a');
-                if(temp == -1) return temp;
-                else ans += temp;
-            }
-        }
-
-        return ans;
-    }
-
-    public int minCost(ArrayList<ArrayList<Pair>> graph, int src, int dest) {
-        PriorityQueue<Pair> q = new PriorityQueue<>((a,b) -> a.cost-b.cost);
-        q.add(new Pair(src, 0));
-        int[] dist = new int[26];
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[src] = 0;
-        int effCost = Integer.MAX_VALUE;
-        while(!q.isEmpty()) {
-            Pair p = q.poll();
-            for(Pair t : graph.get(p.ch)) {
-                int newCost = p.cost+t.cost;
-                if(dist[t.ch] > newCost) {
-                    dist[t.ch] = newCost;
-                    if(t.ch != dest) {
-                        q.add(new Pair(t.ch, newCost));
-                    }
+        for(int via=0;via<26;via++) {
+            for(int i=0;i<26;i++) {
+                for(int j=0;j<26;j++) {
+                    if(mat[i][via] == Integer.MAX_VALUE || mat[via][j] == Integer.MAX_VALUE) continue;
+                    mat[i][j] = Math.min(mat[i][j], mat[i][via]+mat[via][j]);
                 }
             }
         }
 
-        effCost = dist[dest];
-        return effCost==Integer.MAX_VALUE? -1 : effCost;
-    }
-}
+        long ans = 0;
+        for(int i=0;i<source.length();i++) {
+            if(mat[source.charAt(i)-'a'][target.charAt(i)-'a'] == Integer.MAX_VALUE) {
+                return -1L;
+            }
+            else {
+                ans += mat[source.charAt(i)-'a'][target.charAt(i)-'a'];
+            }
+        }
 
-class Pair {
-    int ch;
-    int cost;
-    public Pair(int ch, int cost) {
-        this.ch = ch;
-        this.cost = cost;
+        return ans;
     }
 }
