@@ -1,38 +1,34 @@
 class Solution {
     static int spanningTree(int V, int E, List<List<int[]>> adj) {
         // Code Here.
-        PriorityQueue<Pair> pq = new PriorityQueue<>((a,b) -> a.dist - b.dist);
+        PriorityQueue<Tuple> pq = new PriorityQueue<>((a,b) -> a.wt-b.wt);
+        int sum = 0;
+        pq.add(new Tuple(0, 0));
         boolean[] vis = new boolean[V];
         
-        int sum = 0;
-        pq.add(new Pair(0,0));
-        while(!pq.isEmpty()){
-            int node = pq.peek().node;
-            int nodeDist = pq.peek().dist;
-            pq.remove();
-            
-            if(!vis[node]) {
-                vis[node] = true;
-                sum += nodeDist;
-                for(int i=0;i<adj.get(node).size();i++){
-                    int[] temp = adj.get(node).get(i);
-                    int adjNode = temp[0];
-                    int edg = temp[1];
-                    if(!vis[adjNode]){
-                        pq.add(new Pair(adjNode, edg));
+        while(!pq.isEmpty()) {
+            Tuple tup = pq.poll();
+            if(!vis[tup.node]) {
+                vis[tup.node] = true;
+                sum += tup.wt;
+                for(int[] t : adj.get(tup.node)) {
+                    if(!vis[t[0]]) {
+                        pq.add(new Tuple(t[1], t[0]));
                     }
                 }
             }
         }
+        
         return sum;
     }
-} 
+}
 
-class Pair{
+class Tuple {
+    int wt;
     int node;
-    int dist;
-    Pair(int n, int d){
-        node = n;
-        dist = d;
+    
+    public Tuple(int wt, int node) {
+        this.wt = wt;
+        this.node = node;
     }
 }
